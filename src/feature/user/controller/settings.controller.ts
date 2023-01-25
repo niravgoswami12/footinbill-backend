@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../auth/guard/jwt-auth.guard';
-import { UpdateEmailDto } from '../dto/update-email.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
 import { User } from '../schema/user.schema';
 import { UserService } from '../service/user.service';

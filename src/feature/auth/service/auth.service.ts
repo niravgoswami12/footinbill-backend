@@ -79,7 +79,7 @@ export class AuthService {
     customName?: string,
   ) {
     try {
-      const { name, email, id } = await getSocialUser();
+      const { email, id } = await getSocialUser();
 
       const existentUser = await this.userService.getUserBy({ [fieldId]: id });
 

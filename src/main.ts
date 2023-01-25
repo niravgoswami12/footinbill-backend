@@ -2,7 +2,6 @@ import { config } from 'dotenv';
 config();
 require('newrelic');
 import * as Sentry from '@sentry/node';
-import * as Tracing from '@sentry/tracing';
 // or use es6 import statements
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
