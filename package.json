@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "deploy-heroku": "./heroku-docker-deploy.sh",
+    "deploy:heroku": "./heroku-docker-deploy.sh",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -21,14 +21,16 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/cli": "^9.0.0",
     "@nestjs-modules/mailer": "^1.8.1",
+    "@nestjs/cli": "^9.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/jwt": "^10.0.1",
     "@nestjs/mongoose": "^9.2.1",
     "@nestjs/platform-express": "^9.0.0",
+    "@sentry/node": "^7.33.0",
+    "@sentry/tracing": "^7.33.0",
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
@@ -37,6 +39,7 @@
     "facebook-auth-nestjs": "^0.0.3",
     "googleapis": "^110.0.0",
     "mongoose": "^6.8.4",
+    "newrelic": "latest",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },

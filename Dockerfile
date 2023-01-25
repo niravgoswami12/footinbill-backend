@@ -1,14 +1,18 @@
 # Base image
-FROM node:18
+FROM node:16
 
 # Create app directory
 WORKDIR /usr/src/app
 
+ENV NEW_RELIC_NO_CONFIG_FILE=true
+ENV NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=true \
+NEW_RELIC_LOG=stdout
+# etc.
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
 
 # Install app dependencies
-RUN npm install
+RUN npm install --production
 
 # Bundle app source
 COPY . .

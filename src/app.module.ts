@@ -9,7 +9,6 @@ import { environments } from './environments/environments';
 import { FeatureModule } from './feature/feature.module';
 import { TransformInterceptor } from './core/interceptor/transform.interceptor';
 
-console.log(environments.mongoUri, '--environments.mongoUri--');
 @Module({
   imports: [
     CoreModule,
