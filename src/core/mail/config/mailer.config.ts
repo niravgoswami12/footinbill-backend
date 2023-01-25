@@ -27,5 +27,3 @@ export const mailerConfig = ConfigFactory.getConfig<MailerSchema>(
   defaultValue,
 );
 mailerConfig.initPrettify();
-
-console.log(mailerConfig, '--mailerConfig--');

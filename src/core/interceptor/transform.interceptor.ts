@@ -21,7 +21,6 @@ export class TransformInterceptor<T>
   ): Observable<Response<T>> {
     return next.handle().pipe(
       map((data) => {
-        console.log(data, 'daat');
         const o = {
           success: true,
           message: data.message,
