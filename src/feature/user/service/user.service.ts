@@ -19,7 +19,7 @@ export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   getUserByEmail(mail: string) {
-    const email = { $regex: new RegExp(`^${mail}$`, 'i') };
+    const email = mail; // { $regex: new RegExp(`^${mail}$`, 'i') };
 
     return this.userModel.findOne({ email });
   }
