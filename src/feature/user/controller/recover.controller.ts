@@ -29,9 +29,7 @@ export class RecoverController {
   async recoverPassword(@Body() body: RecoverPasswordDto) {
     const user = await this.userService.validateUserByEmail(body.email);
 
-    const { code, expiration } = await this.recoverService.create(user);
-
-    const url = environments.frontEndUrl;
+    const { code } = await this.recoverService.create(user);
 
     try {
       await this.mailerService.sendMail({
@@ -39,17 +37,13 @@ export class RecoverController {
         subject: 'Recover your password',
         template: './recover', // This will fetch /template/recover.hbs
         context: {
-          name: user.firstname,
-          url,
+          name: user.name,
           code,
-          expiration: Math.round(
-            (expiration.getTime() - Date.now()) / 1000 / 60 / 60,
-          ),
         },
       });
       return { message: 'Please check your email' };
     } catch (e) {
-      console.log(e);
+      console.log('recoverPassword--', e);
       throw new InternalServerErrorException(
         `An error occurred sending email: ${e.message}`,
       );
@@ -87,12 +81,6 @@ export class RecoverController {
 
     if (!recover) {
       throw new NotFoundException('Code not found');
-    }
-
-    if (recover.expiration?.getTime() < Date.now()) {
-      await this.recoverService.delete(recover.owner);
-
-      throw new NotFoundException('Code has expired');
     }
 
     return recover;

@@ -16,8 +16,7 @@ import { AUTH_NOT_REQUIRED } from '../decorators/auth-not-required.decorator';
 export interface Token {
   sub: string;
   email: string;
-  firstname: string;
-  lastname: string;
+  name: string;
 }
 
 @Injectable()

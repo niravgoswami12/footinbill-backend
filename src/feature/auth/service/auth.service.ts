@@ -32,8 +32,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validate(username: string, password: string) {
-    const user = await this.userService.getUser(username);
+  async validate(email: string, password: string) {
+    const user = await this.userService.getUserByEmail(email);
 
     if (!user) {
       throw new UnauthorizedException('User does not exist');
@@ -50,8 +50,7 @@ export class AuthService {
     const payload: Token = {
       sub: user.id,
       email: user.email,
-      firstname: user.firstname,
-      lastname: user.lastname,
+      name: user.name,
     };
 
     let refresh_token: string;

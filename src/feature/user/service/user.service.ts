@@ -60,10 +60,6 @@ export class UserService {
     return this.userModel.find({ online: true });
   }
 
-  async getUser(username: string) {
-    return await this.getUserByEmail(username);
-  }
-
   filterUser(user: User, allowedFields: (keyof User)[] = []) {
     const userObject = user.toObject({ virtuals: true });
 

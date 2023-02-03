@@ -5,6 +5,7 @@ import { randomString } from '../../../shared/utils/random-string';
 import { User } from '../schema/user.schema';
 import { Recover } from '../schema/recover.schema';
 import { environments } from '../../../environments/environments';
+import { randomNumber } from 'src/shared/utils/random-number';
 
 @Injectable()
 export class RecoverService {
@@ -16,11 +17,8 @@ export class RecoverService {
     await this.delete(user);
 
     return this.recoveryModel.create({
-      code: randomString(50),
+      code: randomNumber(4),
       owner: user._id,
-      expiration: new Date(
-        Date.now() + environments.recoverCodeExpiration * 1000,
-      ),
     });
   }
 

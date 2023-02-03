@@ -11,13 +11,7 @@ export class RegisterDto {
   @MinLength(1)
   @IsString()
   @IsNotEmpty()
-  firstname: string;
-
-  @MaxLength(25)
-  @MinLength(1)
-  @IsString()
-  @IsNotEmpty()
-  lastname: string;
+  name: string;
 
   @IsEmail()
   @IsNotEmpty()

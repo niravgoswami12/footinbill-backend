@@ -7,10 +7,7 @@ import { randomString } from '../../../shared/utils/random-string';
 @Schema()
 export class User extends Document {
   @Prop()
-  firstname: string;
-
-  @Prop()
-  lastname: string;
+  name: string;
 
   @Prop()
   email: string;
