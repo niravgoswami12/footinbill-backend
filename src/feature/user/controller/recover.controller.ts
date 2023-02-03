@@ -9,12 +9,11 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { UserService } from '../service/user.service';
-import { Recover } from '../schema/recover.schema';
-import { RecoverService } from '../service/recover.service';
 import { RecoverPasswordDto } from '../dto/recover-password.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
-import { environments } from '../../../environments/environments';
+import { Recover } from '../schema/recover.schema';
+import { RecoverService } from '../service/recover.service';
+import { UserService } from '../service/user.service';
 
 @Controller('recover')
 export class RecoverController {
