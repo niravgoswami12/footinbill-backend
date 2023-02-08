@@ -42,7 +42,6 @@ export class RecoverController {
       });
       return { message: 'Please check your email' };
     } catch (e) {
-      console.log('recoverPassword--', e);
       throw new InternalServerErrorException(
         `An error occurred sending email: ${e.message}`,
       );

@@ -33,7 +33,7 @@ export class AuthService {
   ) {}
 
   async validate(email: string, password: string) {
-    const user = await this.userService.getUserByEmail(email);
+    const user = await this.userService.getSelfRegisteredUserByEmail(email);
 
     if (!user) {
       throw new UnauthorizedException('User does not exist');
@@ -78,7 +78,7 @@ export class AuthService {
     customName?: string,
   ) {
     try {
-      const { email, id } = await getSocialUser();
+      const { name, email, id } = await getSocialUser();
 
       const existentUser = await this.userService.getUserBy({ [fieldId]: id });
 
@@ -90,7 +90,10 @@ export class AuthService {
         throw new BadRequestException(`${fieldId} already exists`);
       }
 
-      if (!currentUser && (await this.userService.getUserByEmail(email))) {
+      if (
+        !currentUser &&
+        (await this.userService.getSelfRegisteredUserByEmail(email))
+      ) {
         throw new BadRequestException('Email already exists');
       }
 
@@ -103,6 +106,7 @@ export class AuthService {
 
       const user = await this.userService.create({
         email,
+        name,
         [fieldId]: id,
       });
 

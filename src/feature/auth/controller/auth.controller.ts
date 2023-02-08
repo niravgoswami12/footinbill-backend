@@ -8,16 +8,16 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { FacebookAuthService } from 'facebook-auth-nestjs';
 import { User } from '../../user/schema/user.schema';
 import { UserService } from '../../user/service/user.service';
-import { CurrentUser } from '../decorators/current-user.decorator';
-import { AuthService } from '../service/auth.service';
-import { JwtAuthGuard } from '../guard/jwt-auth.guard';
-import { RegisterDto } from '../dto/register.dto';
-import { LoginDto } from '../dto/login.dto';
-import { FacebookAuthService } from 'facebook-auth-nestjs';
-import { GoogleAuthService } from '../service/google-auth.service';
 import { AuthNotRequired } from '../decorators/auth-not-required.decorator';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { LoginDto } from '../dto/login.dto';
+import { RegisterDto } from '../dto/register.dto';
+import { JwtAuthGuard } from '../guard/jwt-auth.guard';
+import { AuthService } from '../service/auth.service';
+import { GoogleAuthService } from '../service/google-auth.service';
 
 @Controller('auth')
 export class AuthController {
@@ -95,7 +95,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() body: RegisterDto) {
-    if (await this.userService.getUserByEmail(body.email)) {
+    if (await this.userService.getSelfRegisteredUserByEmail(body.email)) {
       throw new BadRequestException('Email already exists');
     }
 

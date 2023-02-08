@@ -12,7 +12,7 @@ export class Recover extends Document {
   @Prop({ type: ObjectId, ref: User.name })
   owner: User;
 
-  @Prop({ type: Date, expires: '1m', default: Date.now })
+  @Prop({ type: Date, expires: '5m', default: Date.now })
   createdAt: Date;
 }
 

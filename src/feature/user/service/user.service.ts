@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
+import { FilterQuery, Model } from 'mongoose';
 import { User } from '../schema/user.schema';
 
 @Injectable()
@@ -12,6 +12,7 @@ export class UserService {
     'email',
     'facebookId',
     'googleId',
+    'friends',
   ];
 
   unpopulatedFields = '-' + this.blockedFields.join(' -');
@@ -24,11 +25,17 @@ export class UserService {
     return this.userModel.findOne({ email });
   }
 
+  getSelfRegisteredUserByEmail(mail: string) {
+    const email = mail; // { $regex: new RegExp(`^${mail}$`, 'i') };
+
+    return this.userModel.findOne({ email, isInvitePending: false });
+  }
+
   async validateUserByEmail(email: string) {
-    const user = await this.getUserByEmail(email);
+    const user = await this.getSelfRegisteredUserByEmail(email);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User does not exist');
     }
 
     return user;
@@ -50,7 +57,7 @@ export class UserService {
     const user = await this.getUserById(id);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User does not exist');
     }
 
     return user;
@@ -75,10 +82,34 @@ export class UserService {
   }
 
   async create(body: Partial<User>) {
+    body.isInvitePending = false;
+    const password = body.password;
+    delete body.password;
+    const user = await this.userModel.findOneAndUpdate(
+      { email: body.email },
+      body,
+      { upsert: true, new: true },
+    );
+    if (password) {
+      user.password = password;
+    }
+    user.generateSessionToken();
+
+    return user.save();
+  }
+
+  async createUserAsInvited(body: Partial<User>) {
+    body.isInvitePending = true;
     const user = await this.userModel.create(body);
 
     user.generateSessionToken();
 
     return user.save();
+  }
+
+  async addFriend(userId: string, friendId: string) {
+    return this.userModel.findByIdAndUpdate(userId, {
+      $addToSet: { friends: [friendId] },
+    });
   }
 }

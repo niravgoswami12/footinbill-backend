@@ -1,6 +1,7 @@
-import * as bcrypt from 'bcrypt';
 import { Prop, Schema } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
 import { Document } from 'mongoose';
+import { ObjectId } from 'src/shared/mongoose/object-id';
 import { createSchemaForClassWithMethods } from '../../../shared/mongoose/create-schema';
 import { randomString } from '../../../shared/utils/random-string';
 
@@ -9,7 +10,7 @@ export class User extends Document {
   @Prop()
   name: string;
 
-  @Prop()
+  @Prop({ unique: true })
   email: string;
 
   @Prop()
@@ -27,6 +28,12 @@ export class User extends Document {
   get isSocial(): boolean {
     return !!(this.facebookId || this.googleId);
   }
+
+  @Prop({ type: [{ type: ObjectId, ref: 'User' }] })
+  friends: User[];
+
+  @Prop({ default: false })
+  isInvitePending: boolean;
 
   generateSessionToken() {
     this.sessionToken = randomString(60);
@@ -46,12 +53,9 @@ UserSchema.pre('save', async function (next) {
   if (!user.password || user.password.startsWith('$')) {
     return next();
   }
-
   try {
     const salt = await bcrypt.genSalt();
-
     user.password = await bcrypt.hash(user.password, salt);
-
     next();
   } catch (e) {
     next(e);
