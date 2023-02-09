@@ -1,7 +1,8 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { ObjectId } from 'src/shared/mongoose/object-id';
 import { createSchemaForClassWithMethods } from '../../../shared/mongoose/create-schema';
-import { ObjectId } from '../../../shared/mongoose/object-id';
+
 import { User } from './user.schema';
 
 @Schema()
