@@ -5,9 +5,11 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseFilePipeBuilder,
   Patch,
   Post,
   UnauthorizedException,
@@ -44,7 +46,19 @@ export class GroupsController {
   async create(
     @CurrentUser() user: User,
     @Body() createGroupDto: CreateGroupDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /(jpg|jpeg|png|gif)$/,
+        })
+        .addMaxSizeValidator({
+          maxSize: 1024 * 1000, // Allow 1 MB
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    file: Express.Multer.File,
   ) {
     const group = createGroupDto as Group;
     if (file) {
@@ -81,7 +95,19 @@ export class GroupsController {
     @CurrentUser() user: User,
     @Param('id', ParseObjectIdPipe) groupId: ObjectId,
     @Body() updateGroupDto: UpdateGroupDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /(jpg|jpeg|png|gif)$/,
+        })
+        .addMaxSizeValidator({
+          maxSize: 1024 * 1000, // Allow 1 MB
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    file: Express.Multer.File,
   ) {
     const group = await this.groupsService.findOne(groupId, user.id);
     if (!group) {
