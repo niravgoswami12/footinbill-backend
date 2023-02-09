@@ -17,17 +17,22 @@ export class GroupsService {
   }
 
   async findOne(id: ObjectId, createdBy: ObjectId) {
-    console.log(createdBy, id);
-    const group = await this.groupModel.findOne({ id, createdBy });
-    console.log('group-----', group);
+    console.log('findOne', id, createdBy);
+    const group = await this.groupModel.findOne({ _id: id, createdBy });
     return group;
   }
 
   update(id: ObjectId, updateGroupDto: UpdateGroupDto) {
-    return `This action updates a #${id} group`;
+    return this.groupModel.findByIdAndUpdate(id, updateGroupDto, { new: true });
   }
 
   remove(id: ObjectId) {
     return this.groupModel.findByIdAndUpdate(id, { isDeleted: true });
+  }
+
+  async addMember(groupId: string, memberId: string) {
+    return this.groupModel.findByIdAndUpdate(groupId, {
+      $addToSet: { members: [memberId] },
+    });
   }
 }

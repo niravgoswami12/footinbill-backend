@@ -7,6 +7,6 @@ export class CreateGroupDto {
   @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
-  image: string;
+  // @IsNotEmpty()
+  // image: string;
 }

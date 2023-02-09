@@ -1,13 +1,13 @@
-import { AuthController } from './controller/auth.controller';
-import { AuthService } from './service/auth.service';
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import { JwtModule } from '@nestjs/jwt';
 import { FacebookAuthModule } from 'facebook-auth-nestjs';
-import { authConfig } from './config/auth.config';
-import { GoogleAuthService } from './service/google-auth.service';
 import { UserModule } from '../user/user.module';
+import { authConfig } from './config/auth.config';
+import { AuthController } from './controller/auth.controller';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import { AuthService } from './service/auth.service';
+import { GoogleAuthService } from './service/google-auth.service';
 
 const facebook = authConfig.facebook;
 

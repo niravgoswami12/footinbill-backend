@@ -110,9 +110,11 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async me(@CurrentUser() user: User) {
+    console.log(user, 'username');
     const data = await this.userService.filterUser(user, ['email']);
+    console.log(data);
     return {
-      message: 'Success!!!',
+      message: 'Success!',
       data,
     };
   }

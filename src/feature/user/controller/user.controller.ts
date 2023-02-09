@@ -67,7 +67,7 @@ export class UserController {
   @Get('friend')
   async getFriends(@CurrentUser() user: User) {
     //Get User's Friend List
-    const userData = await user.populate('friends', 'id name email');
+    const userData = await user.populate('friends', 'name email');
     if (!userData || !userData.friends.length) {
       throw new NotFoundException('Friends not found');
     }

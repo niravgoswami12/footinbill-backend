@@ -5,7 +5,7 @@ import { ObjectId } from 'src/shared/mongoose/object-id';
 import { createSchemaForClassWithMethods } from '../../../shared/mongoose/create-schema';
 import { randomString } from '../../../shared/utils/random-string';
 
-@Schema()
+@Schema({ timestamps: true })
 export class User extends Document {
   @Prop()
   name: string;
