@@ -149,7 +149,7 @@ export class GroupsController {
       await this.groupsService.addMember(group.id, friend.id);
       //send invite email to newly added friend
       try {
-        friend.email = 'niravgoswami12@gmail.com';
+        // friend.email = 'niravgoswami12@gmail.com';
         await this.mailerService.sendMail({
           to: friend.email,
           subject: `${user.name} added you to the group '${group.name}' on FootInBill`,

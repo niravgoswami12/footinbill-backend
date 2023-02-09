@@ -17,7 +17,6 @@ export class GroupsService {
   }
 
   async findOne(id: ObjectId, createdBy: ObjectId) {
-    console.log('findOne', id, createdBy);
     const group = await this.groupModel.findOne({ _id: id, createdBy });
     return group;
   }

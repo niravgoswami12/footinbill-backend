@@ -70,9 +70,7 @@ export class UserService {
   }
 
   filterUser(user: User, allowedFields: (keyof User)[] = []) {
-    console.log(user, 'ooooo');
     const userObject = user.toObject({ virtuals: true });
-    console.log(userObject, '1111111');
     for (const field of this.blockedFields) {
       if (allowedFields.includes(field)) {
         continue;
@@ -80,7 +78,6 @@ export class UserService {
 
       delete userObject[field];
     }
-    console.log(userObject, '222222');
     return userObject;
   }
 
