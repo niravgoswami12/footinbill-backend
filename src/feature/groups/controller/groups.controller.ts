@@ -56,6 +56,7 @@ export class GroupsController {
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: false,
         }),
     )
     file: Express.Multer.File,
@@ -105,6 +106,7 @@ export class GroupsController {
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: false,
         }),
     )
     file: Express.Multer.File,
