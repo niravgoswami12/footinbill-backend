@@ -1,3 +1,6 @@
+heroku login
+
+heroku container:login
 # replace footinbill-api with your own tag
 docker buildx build --platform linux/amd64 -t footinbill-api .
 
@@ -9,3 +12,5 @@ docker push registry.heroku.com/footinbill-api/web
 
 # then use heroku release to activate
 heroku container:release web -a footinbill-api
+
+heroku container:logout
