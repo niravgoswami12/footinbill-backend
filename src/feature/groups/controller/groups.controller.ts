@@ -124,7 +124,9 @@ export class GroupsController {
       );
       updateData.image = image;
       // Delete old image
-      this.awsService.deleteFile(group.image.key);
+      if (group.image && group.image.key) {
+        this.awsService.deleteFile(group.image.key);
+      }
     }
     if (updateGroupDto.name) {
       updateData.name = updateGroupDto.name;
