@@ -8,13 +8,26 @@ import {
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../auth/guard/jwt-auth.guard';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
+import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { User } from '../schema/user.schema';
 import { UserService } from '../service/user.service';
 
-@Controller('settings')
+@Controller('profile')
 @UseGuards(JwtAuthGuard)
 export class SettingsController {
   constructor(private userService: UserService) {}
+
+  @Put()
+  async updateProfile(
+    @CurrentUser() user: User,
+    @Body() body: UpdateProfileDto,
+  ) {
+    user.name = body.name;
+
+    await user.save();
+
+    return { message: 'Profile updated successfully.' };
+  }
 
   @Put('password')
   async updatePassword(
