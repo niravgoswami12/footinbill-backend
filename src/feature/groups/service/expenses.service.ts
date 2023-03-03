@@ -1,23 +1,43 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { User } from 'src/feature/user/schema/user.schema';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { GetExpenseDto } from '../dto/get-expense.dto';
+import { SettleExpenseDto } from '../dto/settle-expense.dto';
 import { Expense } from '../schema/expense.schema';
 import { Group } from '../schema/group.schema';
+import { Settle } from '../schema/settle.schema';
 import { GroupsService } from './groups.service';
 
+interface ISettle {
+  date: Date;
+  description: string;
+  message: string;
+  amount?: number;
+}
+interface IExpenseItem {
+  id: any;
+  date: Date;
+  description: string;
+  totalAmoun: number;
+  createdByName: string;
+  allDetails: any;
+  detailsPaid: any;
+  detailsSplit: any;
+}
 @Injectable()
 export class ExpensesService {
   constructor(
     private groupSerive: GroupsService,
     @InjectModel(Expense.name) private expenseModel: Model<Expense>,
+    @InjectModel(Settle.name) private settleModel: Model<Settle>,
   ) {}
 
-  async createExpense(createExpenseData: CreateExpenseDto, currentUser: User) {
-    // prepare Members list who are part of this expense
+  async createExpense(currentUser: User, createExpenseData: CreateExpenseDto) {
+    // Constraints:
+    // 1. We support only one user as paid By
     const resultOfPaidById = createExpenseData.paidBy.map((p) => p.paidByUser);
     const resultOfSplitWithId = createExpenseData.splitWith.map(
       (p) => p.splitWithUser,
@@ -49,7 +69,6 @@ export class ExpensesService {
       // add self user id to friend list to manage single self expense
       friendsIds.push(currentUser.id);
 
-      console.log('friendsIds', friendsIds, members);
       if (resultOfPaidById.some((m) => !friendsIds.includes(m))) {
         throw new BadRequestException(
           'paidBy users must be in your friend list',
@@ -151,19 +170,16 @@ export class ExpensesService {
     return { message: 'Expense is created!', data: result };
   }
 
-  async getExpenses(currentUser: User, query: GetExpenseDto) {
-    console.log('createdBy', currentUser, query);
+  async getExpenses(currentUser: User, query: GetExpenseDto): Promise<any> {
     // Get All Expenses documents in which you are member
-    const expenseQueryObj: any = {
-      //   $or: [
-      //     { paidBy: { $elemMatch: { paidByUser: currentUser.id } } },
-      //     { splitWith: { $elemMatch: { splitWithUser: currentUser.id } } },
-      //   ],
-    };
+    const expenseQueryObj: any = {};
     if (query.groupId) {
+      // if expenses by group then list all expenses in group
       expenseQueryObj.group = query.groupId;
     } else {
+      // if non-group expenses then only list expenses in which you are member
       expenseQueryObj.group = { $exists: false };
+      expenseQueryObj.members = { $elemMatch: { $eq: currentUser.id } };
     }
     const resultExpense = await this.expenseModel
       .find(expenseQueryObj, {
@@ -172,8 +188,6 @@ export class ExpensesService {
         description: 1,
         paidBy: 1,
         splitWith: 1,
-        //   paidBy: { $elemMatch: { paidByUser: currentUser.id } },
-        //   splitWith: { $elemMatch: { splitWithUser: currentUser.id } },
       })
       .populate('createdBy', { name: 1, _id: 1 })
       .populate('paidBy.paidByUser', { name: 1, _id: 1 })
@@ -233,7 +247,7 @@ export class ExpensesService {
           message: 'you lent ',
           amount: Math.abs(paidAmountByCurrentUser - splitAmountByCurrentUser),
         };
-      } else {
+      } else if (paidAmountByCurrentUser === 0) {
         // you paid nothing and you owe some amount to someone
         const paidName = p.paidBy[0]?.paidByUser.name.toString();
         const paidAmount = p.paidBy[0]?.paidByAmount;
@@ -251,6 +265,140 @@ export class ExpensesService {
       }
       return expenseItem;
     });
-    return { data: expenses };
+    //settle
+    const settleQueryObj: any = {};
+    if (query.groupId) {
+      // if expenses by group then list all expenses in group
+      settleQueryObj.group = query.groupId;
+    } else {
+      // if non-group expenses then only list expenses in which you are member
+      settleQueryObj.group = { $exists: false };
+      settleQueryObj.$or = [
+        { payer: new mongoose.Types.ObjectId(currentUser.id) },
+        { recipient: new mongoose.Types.ObjectId(currentUser.id) },
+      ];
+    }
+    const resultSettle = await this.settleModel
+      .find(settleQueryObj)
+      .populate('payer', 'name')
+      .populate('recipient', 'name');
+    const settle: ISettle[] = resultSettle.map((p) => {
+      if (p.payer._id.toString() === currentUser.id) {
+        return {
+          date: p.createdAt,
+          description:
+            p.payer.name + ' paid ' + p.recipient.name + ' $' + p.settleAmount,
+          message: 'you paid',
+          amount: p.settleAmount,
+        };
+      } else if (p.recipient._id.toString() === currentUser.id) {
+        return {
+          date: p.createdAt,
+          description:
+            p.payer.name + ' paid ' + p.recipient.name + ' $' + p.settleAmount,
+          message: 'you received',
+          amount: p.settleAmount,
+        };
+      } else {
+        return {
+          date: p.createdAt,
+          description:
+            p.payer.name + ' paid ' + p.recipient.name + ' $' + p.settleAmount,
+          message: 'not involved',
+        };
+      }
+    });
+    const result: Array<ISettle | IExpenseItem> = [...expenses, ...settle];
+    result.sort((a: any, b: any) => {
+      return b.date - a.date;
+    });
+    return { data: result };
+  }
+
+  async settleExpense(currentUser: User, settleExpenseData: SettleExpenseDto) {
+    // Constraints:
+    // 1. We support only Settle per Expense bases, user can not settle for multiple expenses at once
+    //      For Example
+    //      1. User can't settle for multiple expenses within group
+    //      2. User can't settle for multiple expenses with particular friend
+
+    // Only loggedin user can settle if he/she is Payer or Recipient
+    if (
+      currentUser.id !== settleExpenseData.payer &&
+      currentUser.id !== settleExpenseData.recipient
+    ) {
+      throw new BadRequestException(
+        "You are not allowed to settle on someone's behalf",
+      );
+    }
+    // get expense data
+    const expense = await this.expenseModel
+      .findOne({
+        _id: settleExpenseData.expense,
+        splitWith: { $elemMatch: { splitWithUser: settleExpenseData.payer } },
+      })
+      .populate('createdBy', { name: 1, _id: 1 })
+      .populate('paidBy.paidByUser', { name: 1, _id: 1 })
+      .populate('splitWith.splitWithUser', { name: 1, _id: 1 });
+    if (!expense) {
+      throw new BadRequestException('Expense does not exists');
+    }
+    // Check payerId is member of expense and part of splitWith
+    const payerExists = expense.splitWith.find(
+      (m) => m.splitWithUser._id.toString() === settleExpenseData.payer,
+    );
+    if (!payerExists) {
+      throw new BadRequestException(
+        'Payer does not owe any amount for this expense',
+      );
+    }
+
+    // Check payerId is in paidBy of expense , then payer does not owe anything
+    const payerHasPaid = expense.paidBy.find(
+      (m) => m.paidByUser._id.toString() === settleExpenseData.payer,
+    );
+    if (payerHasPaid) {
+      throw new BadRequestException(
+        'Payer does not owe any amount for this expense!',
+      );
+    }
+    // Check recipientId is member of expense and part of paidBy
+    const recipientExists = expense.paidBy.find(
+      (m) => m.paidByUser._id.toString() === settleExpenseData.recipient,
+    );
+    if (!recipientExists) {
+      throw new BadRequestException(
+        'Recipient does not lent any amount for this expense',
+      );
+    }
+
+    // Get settle data for given expense
+    const settle = await this.settleModel.find({
+      expense: settleExpenseData.expense,
+    });
+    // total settle amount for given expense
+    const totalSettledAmount = settle.reduce(
+      (total, s) => total + s.settleAmount,
+      0,
+    );
+    // remaining amount for given expense
+    const remainingAmount = expense.totalAmount - totalSettledAmount;
+    // if user try to pay more then remaining amount then throw error
+    if (remainingAmount < settleExpenseData.settleAmount) {
+      throw new BadRequestException(
+        'Settlement amount is greater then amount borrowed by payer',
+      );
+    }
+    // create settle
+    const result = await this.settleModel.create({
+      settleAmount: settleExpenseData.settleAmount,
+      payer: new mongoose.Types.ObjectId(settleExpenseData.payer),
+      recipient: new mongoose.Types.ObjectId(settleExpenseData.recipient),
+      expense: new mongoose.Types.ObjectId(settleExpenseData.expense),
+      group: expense.group,
+      createdBy: new mongoose.Types.ObjectId(currentUser.id),
+      description: settleExpenseData.description,
+    });
+    return { message: 'Expense is settled!', data: result };
   }
 }

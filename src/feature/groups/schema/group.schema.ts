@@ -32,6 +32,12 @@ export class Group extends Document {
 
   @Prop({ default: false })
   isDeleted: boolean;
+
+  @Prop()
+  createdAt?: Date;
+
+  @Prop()
+  updatedAt?: Date;
 }
 
 export const GroupSchema = createSchemaForClassWithMethods(Group);

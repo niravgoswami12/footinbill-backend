@@ -6,6 +6,7 @@ import { ExpensesController } from './controller/expenses.controller';
 import { GroupsController } from './controller/groups.controller';
 import { Expense, ExpenseSchema } from './schema/expense.schema';
 import { Group, GroupSchema } from './schema/group.schema';
+import { Settle, SettleSchema } from './schema/settle.schema';
 import { ExpensesService } from './service/expenses.service';
 import { GroupsService } from './service/groups.service';
 
@@ -19,6 +20,10 @@ import { GroupsService } from './service/groups.service';
       {
         name: Expense.name,
         schema: ExpenseSchema,
+      },
+      {
+        name: Settle.name,
+        schema: SettleSchema,
       },
     ]),
     AuthModule,

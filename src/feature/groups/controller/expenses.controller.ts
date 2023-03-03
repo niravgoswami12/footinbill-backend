@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { JwtAuthGuard } from 'src/feature/auth/guard/jwt-auth.guard';
 import { User } from 'src/feature/user/schema/user.schema';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { GetExpenseDto } from '../dto/get-expense.dto';
+import { SettleExpenseDto } from '../dto/settle-expense.dto';
 import { ExpensesService } from '../service/expenses.service';
 import { GroupsService } from '../service/groups.service';
 
@@ -29,7 +31,7 @@ export class ExpensesController {
     @CurrentUser() user: User,
     @Body() createExpenseData: CreateExpenseDto,
   ) {
-    return this.expensesService.createExpense(createExpenseData, user);
+    return this.expensesService.createExpense(user, createExpenseData);
   }
 
   @Get()
@@ -40,5 +42,13 @@ export class ExpensesController {
   @Get('balance')
   async getBalance(@CurrentUser() user: User) {
     return { message: 'success' };
+  }
+
+  @Put('settle')
+  async settleExpense(
+    @CurrentUser() user: User,
+    @Body() settleExpenseData: SettleExpenseDto,
+  ) {
+    return this.expensesService.settleExpense(user, settleExpenseData);
   }
 }
