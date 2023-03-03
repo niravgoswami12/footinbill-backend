@@ -12,12 +12,15 @@ export class GroupsService {
     return group.save();
   }
 
-  findAll(createdBy: ObjectId) {
-    return this.groupModel.find({ createdBy });
+  findAll(userId: ObjectId) {
+    return this.groupModel.find({ members: { $in: userId } });
   }
 
-  async findOne(id: ObjectId, createdBy: ObjectId) {
-    const group = await this.groupModel.findOne({ _id: id, createdBy });
+  async findOne(id: ObjectId | string, userId?: ObjectId) {
+    const group = await this.groupModel.findOne({
+      _id: id,
+      members: { $elemMatch: { $eq: userId } },
+    });
     return group;
   }
 

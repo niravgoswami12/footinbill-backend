@@ -22,13 +22,13 @@ export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   getUserByEmail(mail: string) {
-    const email = mail; // { $regex: new RegExp(`^${mail}$`, 'i') };
+    const email = mail.toLowerCase(); // { $regex: new RegExp(`^${mail}$`, 'i') };
 
     return this.userModel.findOne({ email });
   }
 
   getSelfRegisteredUserByEmail(mail: string) {
-    const email = mail; // { $regex: new RegExp(`^${mail}$`, 'i') };
+    const email = mail.toLowerCase(); // { $regex: new RegExp(`^${mail}$`, 'i') };
 
     return this.userModel.findOne({ email, isInvitePending: false });
   }

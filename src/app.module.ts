@@ -2,6 +2,7 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 import { AppController } from './app.controller';
 import { CoreModule } from './core/core.module';
 import { ExceptionsFilter } from './core/filter/exceptions.filter';
@@ -9,7 +10,7 @@ import { TransformInterceptor } from './core/interceptor/transform.interceptor';
 import { environments } from './environments/environments';
 import { FeatureModule } from './feature/feature.module';
 
-// mongoose.set('debug', true);
+mongoose.set('debug', true);
 @Module({
   imports: [
     CoreModule,
@@ -24,7 +25,7 @@ import { FeatureModule } from './feature/feature.module';
       useValue: new ValidationPipe({
         transform: true,
         stopAtFirstError: true,
-        // forbidUnknownValues: false,
+        // forbidUnknownValues: true,
       }),
     },
     {
