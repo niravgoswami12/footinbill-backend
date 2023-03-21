@@ -62,13 +62,16 @@ export class GroupsController {
     file: Express.Multer.File,
   ) {
     const group = createGroupDto as Group;
+    // Check file
     if (file) {
+      // uplaod file to AWS
       const image = await this.awsService.uploadFile(
         file.buffer,
         file.originalname,
       );
       group.image = image;
     }
+    // Create group
     group.createdBy = user.id;
     group.members = [user.id];
     const data = await this.groupsService.create(group);

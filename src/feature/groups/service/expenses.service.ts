@@ -91,19 +91,6 @@ export class ExpensesService {
         'The paidByAmount is different than total paid amount',
       );
     }
-    // For future use function to split amount equally
-    // const splitInteger = (num: number, parts: number): number[] => {
-    //   const splitNums = [];
-    //   const quotient = Math.floor(num / parts);
-    //   const remainder = num % parts;
-    //   for (let i = 0; i < parts; i++) {
-    //     splitNums.push(quotient);
-    //     if (i < remainder) {
-    //       splitNums[i]++;
-    //     }
-    //   }
-    //   return splitNums;
-    // };
 
     // splitWithAmount validation: split equally
     if (createExpenseData.splitType == 'equally') {
