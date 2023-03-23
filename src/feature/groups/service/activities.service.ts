@@ -71,16 +71,16 @@ export class ActivitiesService {
     const activities: IActivity[] = resultActivities.map((activity) => {
       let creatorName = '';
       let memberName = '';
-      const groupName = activity?.group?.groupName || '';
-      if (activity?.addedMember?.userId.toString() === currentUser.id) {
+      const groupName = activity.group?.groupName || '';
+      if (activity.addedMember?.userId.toString() === currentUser.id) {
         memberName = 'You';
       } else {
-        memberName = activity?.addedMember?.userName || '';
+        memberName = activity.addedMember?.userName || '';
       }
-      if (activity?.createdBy?.userId.toString() === currentUser.id) {
+      if (activity.createdBy?.userId.toString() === currentUser.id) {
         creatorName = 'You';
       } else {
-        creatorName = activity?.createdBy?.userName || '';
+        creatorName = activity.createdBy?.userName || '';
       }
       let desc = ActivityLogTemplates[activity.activityType]
         .replace('GROUP_NAME', groupName)
