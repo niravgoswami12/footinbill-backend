@@ -63,7 +63,6 @@ export class ActivitiesService {
       { 'addedMember.userId': currentUser._id },
       { 'createdBy.userId': currentUser._id },
     ];
-    console.log('activityQueryObj', activityQueryObj);
     const resultActivities = await this.activityModel
       .find(activityQueryObj)
       .sort({ createdAt: 'desc' });
