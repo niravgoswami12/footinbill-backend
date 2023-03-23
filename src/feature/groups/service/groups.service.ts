@@ -13,7 +13,10 @@ export class GroupsService {
   }
 
   findAll(userId: ObjectId) {
-    return this.groupModel.find({ members: { $in: userId } });
+    return this.groupModel.find({
+      members: { $in: userId },
+      isDeleted: false,
+    });
   }
 
   async findOne(id: ObjectId | string, userId?: ObjectId) {

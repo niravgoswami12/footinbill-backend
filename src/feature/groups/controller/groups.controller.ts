@@ -28,7 +28,9 @@ import { AwsService } from 'src/shared/service/aws.service';
 import { AddMemberDto } from '../dto/add-member.dto';
 import { CreateGroupDto } from '../dto/create-group.dto';
 import { UpdateGroupDto } from '../dto/update-group.dto';
+import { Activity, ActivityType } from '../schema/activity.schema';
 import { Group } from '../schema/group.schema';
+import { ActivitiesService } from '../service/activities.service';
 import { GroupsService } from '../service/groups.service';
 
 @Controller('groups')
@@ -39,6 +41,7 @@ export class GroupsController {
     private readonly groupsService: GroupsService,
     private readonly userService: UserService,
     private mailerService: MailerService,
+    private readonly activitiesService: ActivitiesService,
   ) {}
 
   @Post()
@@ -75,6 +78,11 @@ export class GroupsController {
     group.createdBy = user.id;
     group.members = [user.id];
     const data = await this.groupsService.create(group);
+    const activity: Partial<Activity> = {
+      activityType: ActivityType.group_created,
+      group: { groupId: data.id, groupName: data.name },
+    };
+    this.activitiesService.addActivity(user, activity);
     return { message: 'Group created successfully', data };
   }
 
@@ -146,7 +154,12 @@ export class GroupsController {
     if (!(await this.groupsService.findOne(groupId, user.id))) {
       throw new UnauthorizedException('Only owner can delete group');
     }
-    await this.groupsService.remove(groupId);
+    const data = await this.groupsService.remove(groupId);
+    const activity: Partial<Activity> = {
+      activityType: ActivityType.group_deleted,
+      group: { groupId: data.id, groupName: data.name },
+    };
+    this.activitiesService.addActivity(user, activity);
     return { message: 'success' };
   }
 
@@ -194,6 +207,13 @@ export class GroupsController {
             groupName: group.name,
           },
         });
+
+        const activity: Partial<Activity> = {
+          activityType: ActivityType.group_member_added,
+          group: { groupId: group.id, groupName: group.name },
+          addedMember: { userId: friend.id, userName: friend.name },
+        };
+        this.activitiesService.addActivity(user, activity);
       } catch (e) {
         throw new InternalServerErrorException(
           `An error occurred sending email: ${e.message}`,

@@ -49,7 +49,7 @@ GroupSchema.pre('find', function () {
     members: 0,
     isDeleted: 0,
   });
-  this.where({ isDeleted: false });
+  // this.where({ isDeleted: false });
 });
 
 GroupSchema.pre('findOne', function () {

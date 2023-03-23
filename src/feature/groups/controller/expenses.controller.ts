@@ -39,10 +39,10 @@ export class ExpensesController {
     return this.expensesService.getExpenses(user, query);
   }
 
-  @Get('balance')
-  async getBalance(@CurrentUser() user: User) {
-    return { message: 'success' };
-  }
+  // @Get('balance')
+  // async getBalance(@CurrentUser() user: User) {
+  //   return { message: 'success' };
+  // }
 
   @Put('settle')
   async settleExpense(

@@ -6,9 +6,11 @@ import { User } from 'src/feature/user/schema/user.schema';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { GetExpenseDto } from '../dto/get-expense.dto';
 import { SettleExpenseDto } from '../dto/settle-expense.dto';
+import { Activity, ActivityType } from '../schema/activity.schema';
 import { Expense } from '../schema/expense.schema';
 import { Group } from '../schema/group.schema';
 import { Settle } from '../schema/settle.schema';
+import { ActivitiesService } from './activities.service';
 import { GroupsService } from './groups.service';
 
 interface ISettle {
@@ -31,6 +33,7 @@ interface IExpenseItem {
 export class ExpensesService {
   constructor(
     private groupSerive: GroupsService,
+    private activitiesService: ActivitiesService,
     @InjectModel(Expense.name) private expenseModel: Model<Expense>,
     @InjectModel(Settle.name) private settleModel: Model<Settle>,
   ) {}
@@ -154,6 +157,28 @@ export class ExpensesService {
       group: createExpenseData.group,
       createdBy: currentUser,
     });
+
+    const activity: Partial<Activity> = {
+      activityType: ActivityType.expense_created,
+      group: group ? { groupId: group.id, groupName: group.name } : null,
+      addedExpense: { expenseId: result.id, expenseDesc: result.description },
+    };
+    if (!activity.group) {
+      createExpenseData.splitWith.map((s) => {
+        if (s.splitWithUser !== currentUser.id) {
+          activity.addedMember = {
+            userId: new mongoose.Types.ObjectId(
+              s.splitWithUser,
+            ) as unknown as User,
+            userName: '',
+          };
+          this.activitiesService.addActivity(currentUser, activity);
+        }
+      });
+    } else {
+      this.activitiesService.addActivity(currentUser, activity);
+    }
+
     return { message: 'Expense is created!', data: result };
   }
 
