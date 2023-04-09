@@ -8,6 +8,7 @@ import { ExceptionsFilter } from './core/filter/exceptions.filter';
 import { TransformInterceptor } from './core/interceptor/transform.interceptor';
 import { environments } from './environments/environments';
 import { FeatureModule } from './feature/feature.module';
+// import mongoose from 'mongoose';
 
 // mongoose.set('debug', true);
 @Module({

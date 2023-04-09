@@ -386,15 +386,24 @@ export class ExpensesService {
 
     // Get settle data for given expense
     const settle = await this.settleModel.find({
-      expense: settleExpenseData.expense,
+      expense: expense._id,
+      payer: new mongoose.Types.ObjectId(settleExpenseData.payer),
     });
     // total settle amount for given expense
     const totalSettledAmount = settle.reduce(
       (total, s) => total + s.settleAmount,
       0,
     );
+    // Payer's total amount that he needs to pay
+    const totalAmountSplitWithPayer = expense.splitWith.reduce((total, s) => {
+      return (
+        total +
+        (s.splitWithUser._id == settleExpenseData.payer ? s.splitWithAmount : 0)
+      );
+    }, 0);
+
     // remaining amount for given expense
-    const remainingAmount = expense.totalAmount - totalSettledAmount;
+    const remainingAmount = totalAmountSplitWithPayer - totalSettledAmount;
     // if user try to pay more then remaining amount then throw error
     if (remainingAmount < settleExpenseData.settleAmount) {
       throw new BadRequestException(
