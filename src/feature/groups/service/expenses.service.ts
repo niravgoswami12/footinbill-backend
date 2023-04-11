@@ -241,10 +241,12 @@ export class ExpensesService {
 
       const expenseItem = {
         id: p.id,
+        type: 'expense',
         date: p.createdAt,
         description: p.description,
         totalAmoun: p.totalAmount,
         createdByName: p.createdBy.name,
+        paidBy: p.paidBy[0].paidByUser.id,
         allDetails: detailObject,
         detailsPaid: {},
         detailsSplit: {},
@@ -302,6 +304,9 @@ export class ExpensesService {
             p.payer.name + ' paid ' + p.recipient.name + ' $' + p.settleAmount,
           message: 'you paid',
           amount: p.settleAmount,
+          type: 'settle',
+          payer: p.payer._id,
+          recipient: p.recipient._id,
         };
       } else if (p.recipient._id.toString() === currentUser.id) {
         return {
@@ -310,6 +315,9 @@ export class ExpensesService {
             p.payer.name + ' paid ' + p.recipient.name + ' $' + p.settleAmount,
           message: 'you received',
           amount: p.settleAmount,
+          type: 'settle',
+          payer: p.payer._id,
+          recipient: p.recipient._id,
         };
       } else {
         return {
@@ -317,6 +325,9 @@ export class ExpensesService {
           description:
             p.payer.name + ' paid ' + p.recipient.name + ' $' + p.settleAmount,
           message: 'not involved',
+          type: 'settle',
+          payer: p.payer._id,
+          recipient: p.recipient._id,
         };
       }
     });
